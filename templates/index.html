@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supercell ID HDX Token Çözücü</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8; --border: #334155; --primary: #3b82f6; --success: #10b981; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 650px; margin: auto; display: grid; gap: 20px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
+        h2 { margin-top: 0; color: #38bdf8; font-size: 1.4rem; }
+        label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+        textarea, input { width: 100%; background: #0f172a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; }
+        textarea { height: 110px; resize: none; font-family: monospace; font-size: 11px; color: #38bdf8; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        .btn-success { background: var(--success); margin-top: 10px; }
+        .success-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 15px; border-radius: 8px; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>🔑 Supercell ID → HDX Token Çözücü</h2>
+            <p style="color: var(--muted); font-size: 13px;">Telefondan veya tarayıcıdan Supercell ID oturum açtıktan sonra elde ettiğiniz ham veriyi (JWT, Çerez veya JSON) aşağıya yapıştırın; sistem PlayerID, PassToken ve JWT'yi otomatik ayıklayıp HDX formatına versin.</p>
+            
+            <label>Ham Oturum Verisi / Çerez / JSON / JWT Yapıştırın</label>
+            <textarea id="rawInput" placeholder="Telefondan kopyaladığınız veriyi buraya yapıştırın..."></textarea>
+            
+            <button onclick="processToken()">Token Bilgilerini Ayıkla ve HDX Yap</button>
+
+            <div id="resultBox" class="success-box">
+                <label style="color: var(--success); font-weight: bold;">HDX Bot Formatı (Tek Satır):</label>
+                <textarea id="hdxResult" readonly style="height: 70px;"></textarea>
+                <button class="btn-success" onclick="copyToken()">Panoya Kopyala</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function processToken() {
+            const raw = document.getElementById('rawInput').value.trim();
+            if (!raw) return alert("Lütfen veriyi yapıştırın!");
+
+            const formData = new FormData();
+            formData.append("raw_data", raw);
+
+            const res = await fetch('/api/parse', { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById('hdxResult').value = data.hdx_line;
+                document.getElementById('resultBox').style.display = 'block';
+            } else {
+                alert("Hata: " + (data.message || "Bilinmeyen hata"));
+            }
+        }
+
+        function copyToken() {
+            const text = document.getElementById('hdxResult');
+            text.select();
+            document.execCommand('copy');
+            alert("HDX formatı panoya kopyalandı!");
+        }
+    </script>
+</body>
+</html>
